@@ -6,6 +6,8 @@ const BrowserWindow = electron.BrowserWindow
 
 const path = require('path')
 
+const CAPPTA_CHECKOUT_URL = 'https://instore.vtexcommercestable.com.br/checkout/instore-cappta?acquirerProtocol=cappta&action=payment&installmentType=2&installments=1&paymentType=credit&amount=100&installmentsInterestRate=0&scheme=instore&autoConfirm=true&cnpj=42724382000146&authKey=DB780A0AB89845D283FF8C779638B54D&authPassword=vtex&administrativePassword=cappta'
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
@@ -21,6 +23,8 @@ function createWindow () {
     },
   })
 
+  mainWindow.maximize()
+
   // allow cappta https error
   mainWindow.webContents.on('certificate-error', (event, url, error, certificate, callback) => {
     if (url.indexOf('cappta.api.s3.amazonaws.com') !== -1) {
@@ -32,13 +36,14 @@ function createWindow () {
     }
   })
 
-  mainWindow.maximize()
-
-  // Load cappta url with example params
-  mainWindow.loadURL('https://instore.vtexcommercestable.com.br/checkout/instore-cappta?acquirerProtocol=cappta&action=payment&installmentType=2&installments=1&paymentType=credit&amount=100&installmentsInterestRate=0&scheme=instore&autoConfirm=true&cnpj=42724382000146&authKey=DB780A0AB89845D283FF8C779638B54D&authPassword=vtex&administrativePassword=cappta')
-
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
+
+  mainWindow.webContents.session.clearCache(() => {
+    console.log('Cache cleared')
+    // Load cappta url with example params
+    mainWindow.loadURL(CAPPTA_CHECKOUT_URL)
+  })
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
